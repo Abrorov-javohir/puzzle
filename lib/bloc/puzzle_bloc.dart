@@ -1,27 +1,32 @@
-// puzzle_bloc.dart
+import 'dart:async';
 import 'dart:math';
-import 'package:bloc/bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:puzzle/bloc/puzzle_event.dart';
+import 'package:puzzle/bloc/puzzle_state.dart';
 
-part 'puzzle_event.dart';
-part 'puzzle_state.dart';
+// puzzle_event.dart
 
+// puzzle_bloc.dart
 class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
   PuzzleBloc() : super(PuzzleState.initial()) {
-    on<ShuffledEvent>(random);
-    on<TileTappedEvent>(_tile_Tapped);
+    on<ShuffledEvent>(_random);
+    on<TileTappedEvent>(_tileTapped);
   }
 
-  void random(ShuffledEvent event, Emitter<PuzzleState> emit) {
+  void _random(ShuffledEvent event, Emitter<PuzzleState> emit) {
     final random = Random();
     final shuffledTiles = List<int>.from(state.tiles);
     do {
       shuffledTiles.shuffle(random);
     } while (!_isSolvable(shuffledTiles) || _isCompleted(shuffledTiles));
 
-    emit(state.copyWith(tiles: shuffledTiles));
+    emit(state.copyWith(
+        tiles: shuffledTiles,
+        moves: 0,
+        isPlaying: true)); // isPlaying true ga o'rnatiladi
   }
 
-  void _tile_Tapped(TileTappedEvent event, Emitter<PuzzleState> emit) {
+  void _tileTapped(TileTappedEvent event, Emitter<PuzzleState> emit) {
     final int index = event.index;
     final int emptyIndex = state.tiles.indexOf(0);
 
@@ -29,7 +34,13 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
       final newTiles = List<int>.from(state.tiles);
       newTiles[emptyIndex] = newTiles[index];
       newTiles[index] = 0;
-      emit(state.copyWith(tiles: newTiles));
+      final bool completed = _isCompleted(newTiles);
+      emit(state.copyWith(
+        tiles: newTiles,
+        moves: state.moves + 1,
+        isPlaying:
+            !completed, // O'yin tugaganini tekshirib isPlaying flagini yangilaymiz
+      ));
     }
   }
 

@@ -1,24 +1,23 @@
-part of 'puzzle_bloc.dart';
-
 class PuzzleState {
   final List<int> tiles;
+  final int moves;
+  final bool isPlaying; // Qo'shilgan
 
-  const PuzzleState(this.tiles);
+  PuzzleState({required this.tiles, this.moves = 0, this.isPlaying = false}); // Default isPlaying false
 
   factory PuzzleState.initial() {
-    // Boshlang'ich tartib
     return PuzzleState(
-      List.generate(
-        16,
-        (index) => index,
-      ),
+      tiles: List.generate(16, (index) => index),
+      moves: 0,
+      isPlaying: false, // Boshlang'ich qiymat
     );
   }
 
-  @override
-  List<Object> get props => [tiles];
-
-  PuzzleState copyWith({List<int>? tiles}) {
-    return PuzzleState(tiles ?? this.tiles);
+  PuzzleState copyWith({List<int>? tiles, int? moves, bool? isPlaying}) {
+    return PuzzleState(
+      tiles: tiles ?? this.tiles,
+      moves: moves ?? this.moves,
+      isPlaying: isPlaying ?? this.isPlaying,
+    );
   }
 }
